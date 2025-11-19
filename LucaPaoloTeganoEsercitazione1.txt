@@ -1,0 +1,397 @@
+Domanda 1 = 2
+
+Domanda 2 = 7
+
+Domanda 3 = 1, 4
+
+Domanda 4 = 3 , 6
+
+Domanda 5 = 1
+
+Domanda 6 =
+//allocazione
+char* X[20];
+for(int i = 0;i <20 ;++i){
+X[i] = new char[10];
+}
+//deallocazione
+for(int i = 0; i< 20; ++i) {
+delete[] X[i];
+}
+
+Domanda 7 =
+20
+19
+18
+17
+16
+15
+14
+13
+12
+11
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+
+Domanda 8 =
+1 Corretta ,necessita delete p1;
+2 Corretta ,necessita delete []p2;
+3 Corretta,necessita di :
+for(int i = 0; i<20;++i){
+delete []p3[i];
+}
+delete []p3;
+
+4 Corretta
+5 Non Corretta
+delete[] p5[0];
+6 Non Corretta //dovrebbe essere double (*p6)[20] = new double[20][20];
+
+Esercizio 1
+#include <iostream>
+using namespace std;
+
+struct Insieme
+{
+    bool *elementi;
+    int dimensione;
+};
+
+Insieme inizializza(int dim)
+{
+    Insieme s;
+    s.dimensione = dim;
+    s.elementi = new bool[dim]();
+    return s;
+}
+
+void dealloca(Insieme &s)
+{
+    delete[] s.elementi;
+    s.elementi = nullptr;
+    s.dimensione = 0;
+}
+
+void stampa(const Insieme &s)
+{
+    cout << "{ ";
+    for (int i = 0; i < s.dimensione; ++i)
+    {
+        if (s.elementi[i])
+        {
+            cout << i << " ";
+        }
+    }
+    cout << "}" << endl;
+}
+
+void cambiaDimensioni(Insieme &s, int nuovaDimensione)
+{
+    bool *nuovoArray = new bool[nuovaDimensione]();
+
+    int elementiDaCopiare = (s.dimensione < nuovaDimensione)
+                                ? s.dimensione
+                                : nuovaDimensione;
+
+    for (int i = 0; i < elementiDaCopiare; ++i)
+    {
+        nuovoArray[i] = s.elementi[i];
+    }
+
+    delete[] s.elementi;
+    s.elementi = nuovoArray;
+    s.dimensione = nuovaDimensione;
+}
+
+void aggiungiElemento(Insieme &s, int k)
+{
+    if (k < 0)
+        return;
+
+    if (k >= s.dimensione)
+    {
+        cambiaDimensioni(s, k + 1);
+    }
+
+    s.elementi[k] = true;
+}
+
+Insieme unione(const Insieme &a, const Insieme &b)
+{
+    int nuovaDim = (a.dimensione > b.dimensione)
+                       ? a.dimensione
+                       : b.dimensione;
+
+    Insieme risultato = inizializza(nuovaDim);
+
+    for (int i = 0; i < nuovaDim; ++i)
+    {
+        bool inA = (i < a.dimensione) && a.elementi[i];
+        bool inB = (i < b.dimensione) && b.elementi[i];
+        risultato.elementi[i] = inA || inB;
+    }
+    return risultato;
+}
+
+Insieme intersezione(const Insieme &a, const Insieme &b)
+{
+    int nuovaDim = (a.dimensione < b.dimensione)
+                       ? a.dimensione
+                       : b.dimensione;
+
+    Insieme risultato = inizializza(nuovaDim);
+
+    for (int i = 0; i < nuovaDim; ++i)
+    {
+        risultato.elementi[i] = a.elementi[i] && b.elementi[i];
+    }
+    return risultato;
+}
+
+Insieme copia(const Insieme &originale)
+{
+    Insieme nuova = inizializza(originale.dimensione);
+    for (int i = 0; i < originale.dimensione; ++i)
+    {
+        nuova.elementi[i] = originale.elementi[i];
+    }
+    return nuova;
+}
+
+int main()
+{
+    Insieme setA = inizializza(11);
+    aggiungiElemento(setA, 2);
+    aggiungiElemento(setA, 5);
+    aggiungiElemento(setA, 7);
+    cout << "A è : ";
+    stampa(setA);
+
+    Insieme setB = inizializza(7);
+    aggiungiElemento(setB, 2);
+    aggiungiElemento(setB, 5);
+    aggiungiElemento(setB, 0);
+    cout << "B è : ";
+    stampa(setB);
+
+    Insieme setUnione = unione(setA, setB);
+    cout << "Unione(A, B): ";
+    stampa(setUnione);
+
+    Insieme setInter = intersezione(setA, setB);
+    cout << "Intersezione(A, B): ";
+    stampa(setInter);
+
+    Insieme setCopia = copia(setA);
+    cout << "Copia(A): ";
+    stampa(setCopia);
+
+    cout << "Aggiungo 9 ad A (resize auto):" << endl;
+    aggiungiElemento(setA, 9);
+    cout << "A: ";
+    stampa(setA);
+
+    cout << "Riduco A a dim 4:" << endl;
+    cambiaDimensioni(setA, 4);
+    cout << "A: ";
+    stampa(setA);
+
+    dealloca(setA);
+    dealloca(setB);
+    dealloca(setUnione);
+    dealloca(setInter);
+    dealloca(setCopia);
+
+    return 0;
+}
+
+
+Esercizio 2
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+class NumeroRazionale
+{
+private:
+    int numeratore;
+    int denominatore;
+
+    int mcd(int a, int b)
+    {
+        a = abs(a);
+        b = abs(b);
+        while (b != 0)
+        {
+            int tmp = b;
+            b = a % b;
+            a = tmp;
+        }
+        return a;
+    }
+
+    void riduci()
+    {
+        if (denominatore < 0)
+        {
+            numeratore = -numeratore;
+            denominatore = -denominatore;
+        }
+
+        if (numeratore == 0)
+        {
+            denominatore = 1;
+            return;
+        }
+
+        int divisore = mcd(numeratore, denominatore);
+        numeratore /= divisore;
+        denominatore /= divisore;
+    }
+
+public:
+    NumeroRazionale() : numeratore(0), denominatore(1) { cout << "Costuttore senza parametri" << endl; }
+
+    NumeroRazionale(int numeratore1) : numeratore(numeratore1), denominatore(1)
+    {
+        cout << "Costuttore con 1 parametro" << endl;
+    }
+
+    NumeroRazionale(int numeratore, int denominatore) : numeratore(numeratore), denominatore(denominatore)
+    {
+        cout << "Costruttore con 2 parametri" << endl;
+        if (this->denominatore == 0)
+        {
+            cout << "Errore: Denominatore non può essere zero." << endl;
+            this->numeratore = 0;
+            this->denominatore = 1;
+        }
+        riduci();
+    }
+
+    NumeroRazionale(const NumeroRazionale &nr) : numeratore(nr.numeratore), denominatore(nr.denominatore)
+    {
+        cout << "Costruttore Copia" << endl;
+    }
+
+    NumeroRazionale &operator=(const NumeroRazionale &altro)
+    {
+        cout << "Operatore =" << endl;
+        if (this != &altro)
+        {
+            numeratore = altro.numeratore;
+            denominatore = altro.denominatore;
+        }
+        return *this;
+    }
+
+    friend ostream &operator<<(ostream &os, const NumeroRazionale &nr)
+    {
+        cout << "Operatore <<" << endl;
+        os << nr.numeratore << "/" << nr.denominatore;
+        return os;
+    }
+
+    friend istream &operator>>(istream &is, NumeroRazionale &nr)
+    {
+        int num;
+        int den;
+
+        cout << "Inserisci il numeratore " << endl;
+        is >> num;
+        cout << "Inserisci il denominatore " << endl;
+        is >> den;
+
+        if (den == 0)
+        {
+            is.setstate(ios::failbit);
+        }
+        else
+        {
+            nr.numeratore = num;
+            nr.denominatore = den;
+            nr.riduci();
+        }
+
+        return is;
+    }
+
+    NumeroRazionale operator+(const NumeroRazionale &altro) const
+    {
+        cout << "Operatore +" << endl;
+        int num_ris = (this->numeratore * altro.denominatore) + (altro.numeratore * this->denominatore);
+        int den_ris = this->denominatore * altro.denominatore;
+
+        return NumeroRazionale(num_ris, den_ris);
+    }
+
+    NumeroRazionale operator*(const NumeroRazionale &other) const
+    {
+        cout << "Operatore *" << endl;
+        int num_ris = this->numeratore * other.numeratore;
+        int den_ris = this->denominatore * other.denominatore;
+
+        return NumeroRazionale(num_ris, den_ris);
+    }
+};
+
+int main()
+{
+    cout << "--Test Costruttori--" << endl;
+
+    NumeroRazionale r0;
+    cout << "r0 (default): " << r0 << endl;
+
+    NumeroRazionale r1(5);
+    cout << "r1 (1 param 5): " << r1 << endl;
+
+    NumeroRazionale r2(8, 12);
+    cout << "r2 (2 param 8/12): " << r2 << endl;
+
+    NumeroRazionale r_segno(5, -10);
+    cout << "r_segno (5/-10): " << r_segno << endl;
+
+    cout << "Test costruttore (10, 0):" << endl;
+    NumeroRazionale r_err(10, 0);
+    cout << "r_err (10/0): " << r_err << endl;
+
+    cout << "\n--Test Copia e Assegnazione--" << endl;
+    NumeroRazionale r_copia(r2);
+    cout << "r_copia (di r2 2/3): " << r_copia << endl;
+
+    r0 = r_segno;
+    cout << "r0 = r_segno (-1/2): " << r0 << endl;
+
+    cout << "\n**Test Operatori Aritmetici **" << endl;
+    NumeroRazionale a(1, 2);
+    NumeroRazionale b(1, 3);
+    cout << "a = " << a << ", b = " << b << endl;
+
+    NumeroRazionale somma = a + b;
+    cout << "a + b = " << somma << endl;
+
+    NumeroRazionale prodotto = a * b;
+    cout << "a * b = " << prodotto << endl;
+
+    NumeroRazionale c(2, 3);
+    NumeroRazionale d(3, 4);
+    cout << "c = " << c << ", d = " << d << endl;
+    cout << "c * d = " << c * d << endl;
+
+    cout << "\n**Test Operatore Input (>>)**" << endl;
+    NumeroRazionale r_input;
+
+    cin >> r_input;
+    cout << "Hai inserito (ridotto): " << r_input << endl;
+
+    return 0;
+}

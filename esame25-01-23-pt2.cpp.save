@@ -1,0 +1,57 @@
+#include<iostream>
+#include <string>
+#include <vector>
+using namespace std;
+
+class Webpage{
+  private:
+    string titolo;
+    string testo;
+    vector<Webpage*> links;
+  public:
+    //Costruttore: inizializza i membri immutabili
+    Webpage(const string& t, const string& txt) : titolo(t), testo(txt) {}
+     
+    //Getter
+    string getTitolo() const 
+    { 
+       return titolo;
+    }
+    
+    string getTesto() const 
+    {
+       return testo;
+    }
+
+    const vector<Weboage*>& getLinks() const 
+    {
+       return links;
+    }
+    
+    //Metodi di modifica
+    
+   void addLink(Webpage* altraPagina)
+   {
+      if(altraPagina != nullptr)
+      {
+        links.push_back(altraPagina);
+      }
+   }
+
+   //Operatori
+   bool operator == (const Webpage& other) const 
+   {
+      return this->titolo == other.titolo;
+   } 
+}
+
+class Website {
+  private:
+    Webpage* homepage;
+    vector<Webpage*> tutteLePagine;
+  public:
+    Website(const string& titoloHomepage, const string& testoHomepage)
+    {
+      homepage = new Webpage(titoloHomepage, testoHomepage);
+    }
+}
