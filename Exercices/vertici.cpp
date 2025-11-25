@@ -1,0 +1,85 @@
+#include <iostream>
+
+// Definiamo gli stati possibili della nostra sequenza
+enum Stato
+{
+    INIZIO,      // Non abbiamo ancora visto abbastanza numeri per decidere
+    DECRESCENTE, // La sequenza sta scendendo
+    CRESCENTE,   // La sequenza sta salendo dopo il minimo
+    NON_VALIDO   // La sequenza ha violato una regola
+};
+
+int main()
+{
+    // Impostiamo l'output in italiano, se necessario (per cout, cin)
+    // std::locale::global(std::locale("it_IT.UTF-8")); // Opzionale
+
+    int num_corrente;
+    int num_precedente;
+    int contatore = 0;
+    Stato stato_corrente = INIZIO;
+
+    std::cout << "Inserisci una sequenza di numeri interi positivi (termina con -1):" << std::endl;
+
+    // Leggiamo il primo numero per inizializzare il ciclo
+    std::cin >> num_corrente;
+
+    while (num_corrente != -1)
+    {
+        contatore++;
+
+        // La logica per la validazione inizia dal secondo numero
+        if (contatore > 1)
+        {
+            // Usiamo uno switch per gestire la transizione tra gli stati
+            switch (stato_corrente)
+            {
+            case INIZIO:
+                // Dal secondo numero, determiniamo lo stato iniziale
+                if (num_corrente < num_precedente)
+                {
+                    stato_corrente = DECRESCENTE; // Inizia la discesa
+                }
+                else
+                {
+                    // Se non è strettamente decrescente all'inizio, non è a V
+                    stato_corrente = NON_VALIDO;
+                }
+                break;
+
+            case DECRESCENTE:
+                // Siamo nella fase di discesa
+                if (num_corrente > num_precedente)
+                {
+                    stato_corrente = CRESCENTE; // Trovato il vertice, inizia la salita
+                }
+                else if (num_corrente >= num_precedente)
+                {
+                    // Non è strettamente decrescente (o uguale)
+                    stato_corrente = NON_VALIDO;
+                }
+                // se num_corrente < num_precedente, continuiamo a scendere
+                break;
+
+            case CRESCENTE:
+                // Siamo nella fase di salita
+                if (num_corrente <= num_precedente)
+                {
+                    // Non è strettamente crescente (o uguale o scende di nuovo)
+                    stato_corrente = NON_VALIDO;
+                }
+                // se num_corrente > num_precedente, continuiamo a salire
+                break;
+
+            case NON_VALIDO:
+                // Una volta che la sequenza non è valida, rimane tale.
+                // Potremmo anche uscire dal ciclo qui per ottimizzare.
+                break;
+            }
+        }
+
+        // Aggiorniamo il numero precedente e leggiamo il prossimo
+        num_precedente = num_corrente;
+        std::cin >> num_corrente;
+    }
+};
