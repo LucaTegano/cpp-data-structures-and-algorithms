@@ -1,0 +1,170 @@
+Correzione Esercizio 1 (Appello: 24 Gennaio 2023)
+Matricola: 262364
+
+Data la matricola 262364, l'array v è inizializzato come:
+int v[] = {2, 6, 2, 3, 6, 4};
+
+================================================================================
+Domanda 1: Cosa stampa la seguente istruzione?
+cout << *p1 << *p2 << a << b << endl;
+================================================================================
+Risposta: 2232
+
+Spiegazione dettagliata:
+- a = v[0]; -> a assume il valore v[0] = 2.
+- b = v[1]; -> b assume il valore v[1] = 6.
+- p1 = &a;  -> p1 punta all'indirizzo di a.
+- p2 = &b;  -> p2 punta all'indirizzo di b.
+- p1 = p2;  -> p1 viene assegnato a p2, quindi ora anche p1 punta all'indirizzo di b.
+- *p2 = v[2]; -> *p2 (che è b) assume il valore v[2] = 2. Di conseguenza, b diventa 2.
+- a = v[3]; -> a assume il valore v[3] = 3.
+
+Stato finale delle variabili:
+- a = 3
+- b = 2
+- p1 punta a b (*p1 = 2)
+- p2 punta a b (*p2 = 2)
+
+Quindi la stampa cout << *p1 << *p2 << a << b stampa: 2232.
+
+================================================================================
+Domanda 2: Indicare il modo corretto di gestire la memoria dinamica per:
+int* q1 = new int(20);
+================================================================================
+Risposta: 2D (delete q1;)
+
+Spiegazione dettagliata:
+- L'istruzione "new int(20)" alloca dinamicamente sul heap un SINGOLO intero inizializzato al valore 20 (non alloca un array di 20 elementi, che richiederebbe invece le parentesi quadre: "new int[20]").
+- Di conseguenza, non serve delete[] né alcun ciclo, ma basta liberare la memoria della singola variabile allocata con:
+  delete q1;
+
+================================================================================
+Domanda 3: Cosa stampa la seguente istruzione?
+cout << qtr - ptr << endl;
+================================================================================
+Risposta: 3
+
+Spiegazione dettagliata:
+- ptr punta a &v[0] (l'inizio dell'array, ossia v).
+- qtr punta a &v[3] (ossia v + 3).
+- L'operazione "qtr - ptr" è una sottrazione tra puntatori dello stesso tipo (int*). In C++, la differenza tra due puntatori che puntano allo stesso array restituisce il numero di elementi di distanza (la distanza divisa per sizeof(int)).
+- Distanza: (v + 3) - v = 3.
+- Quindi stampa 3.
+
+================================================================================
+Domanda 4: Cosa stampa la seguente istruzione?
+int &f = v[2];
+f = 7;
+for (int i = 0; i < 5; ++i) {
+    cout << *(v+i);
+}
+cout << endl;
+================================================================================
+Risposta: 26736
+
+Spiegazione dettagliata:
+- f è dichiarata come un riferimento (reference) all'elemento v[2] (che inizialmente vale 2).
+- f = 7; -> modifica l'elemento reale v[2] a cui f fa riferimento. Quindi v[2] diventa 7.
+- L'array v diventa quindi: {2, 6, 7, 3, 6, 4}.
+- Il ciclo for stampa i primi 5 elementi dell'array (i da 0 a 4) tramite aritmetica dei puntatori *(v+i), equivalente a v[i]:
+  - i = 0 -> *(v+0) = v[0] = 2
+  - i = 1 -> *(v+1) = v[1] = 6
+  - i = 2 -> *(v+2) = v[2] = 7
+  - i = 3 -> *(v+3) = v[3] = 3
+  - i = 4 -> *(v+4) = v[4] = 6
+- Quindi stampa 26736.
+
+================================================================================
+Esercizio 3: Grafo e Somma dei Pesi dei Nodi Vicini
+================================================================================
+
+bool esercizio(const Graph& g, const vector<int>& W) {
+    unsigned n = g.n();
+    
+    // Iteriamo su ciascun nodo u del grafo
+    for (unsigned u = 0; u < n; ++u) {
+        int sum_out = 0; // Somma dei pesi dei nodi con arco uscente da u (u -> v)
+        int sum_in = 0;  // Somma dei pesi dei nodi con arco entrante in u (v -> u)
+        
+        for (unsigned v = 0; v < n; ++v) {
+            // Se c'è un arco da u a v, v è un nodo di destinazione (arco uscente da u)
+            if (g(u, v)) {
+                sum_out += W[v];
+            }
+            // Se c'è un arco da v a u, v è un nodo di sorgente (arco entrante in u)
+            if (g(v, u)) {
+                sum_in += W[v];
+            }
+        }
+        
+        // Se per anche un solo nodo u la proprietà non è verificata, restituiamo false
+        if (sum_out < sum_in) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+================================================================================
+Esercizio 4: Hitting Set con Backtracking
+================================================================================
+
+#include <vector>
+
+using namespace std;
+
+// Verifica se il sottoinsieme H copre (interseca) tutti gli insiemi in S
+bool verificaHittingSet(const vector<vector<int>>& S, const vector<bool>& in_H) {
+    for (const auto& Si : S) {
+        bool coperto = false;
+        for (int x : Si) {
+            if (in_H[x]) {
+                coperto = true;
+                break;
+            }
+        }
+        if (!coperto) {
+            return false; // L'insieme Si non ha nessun elemento in comune con H
+        }
+    }
+    return true;
+}
+
+// Algoritmo ricorsivo di backtracking per generare sottoinsiemi di dimensione k
+bool backtrack(int elemento, int selezionati, int n, int k, const vector<vector<int>>& S, vector<bool>& in_H) {
+    // Caso base: abbiamo selezionato esattamente k elementi
+    if (selezionati == k) {
+        return verificaHittingSet(S, in_H);
+    }
+    
+    // Fine del dominio senza aver raggiunto k elementi
+    if (elemento == n) {
+        return false;
+    }
+    
+    // Caso 1: includiamo "elemento" nel sottoinsieme H
+    in_H[elemento] = true;
+    if (backtrack(elemento + 1, selezionati + 1, n, k, S, in_H)) {
+        return true;
+    }
+    in_H[elemento] = false; // backtrack
+    
+    // Caso 2: NON includiamo "elemento" nel sottoinsieme H
+    if (backtrack(elemento + 1, selezionati, n, k, S, in_H)) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Funzione principale richiesta dall'esercizio
+bool esisteHittingSet(int n, const vector<vector<int>>& S, int k) {
+    if (k <= 0 || k > n) {
+        return false;
+    }
+    
+    vector<bool> in_H(n, false); // Rappresenta gli elementi inseriti in H
+    return backtrack(0, 0, n, k, S, in_H);
+}
+

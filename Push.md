@@ -1,1 +1,0 @@
-push only the staged changes to the stage branch and open a pull request to main,accept the pull request with a small comment and update the main 

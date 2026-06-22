@@ -1,0 +1,27 @@
+#include <iostream>
+
+using namespace std;
+
+// TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+void f(int* a) {
+    int b = (*a + 3);
+    int c = *(a + 3);
+    cout << b << "" << c << endl;
+}
+
+int main() {
+    int* matricola = new int[6]{1, 6, 1, 5, 5, 5};
+    // 1. La seguente istruzione è corretta? Se si, che cosa stampa?
+    f(matricola); //b= indice 0 +3 quindi 4; c=5
+    // 2. La seguente istruzione è corretta? Se si, che cosa stampa?
+    f(matricola + 3); // b=8, c indefinito perchè accedo a memoria che non ho
+    // 3. Le seguenti istruzioni sono corrette? Motivare la risposta -> no non è un vector/list
+    //            while (!matricola.empty()) matricola.pop_back();
+
+    // 4. Scrivere sul foglio le istruzioni per deallocare la memoria dinamica allocata
+    //            nel programma. Scrivere “NIENTE” se non c’è bisogno di deallocare memoria
+    //            …
+    delete [] matricola; //serve questo
+    return 0;
+}
+

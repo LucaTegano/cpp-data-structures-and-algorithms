@@ -1,0 +1,54 @@
+Sia g un grafo orientato e x e y due suoi nodi. Essi sono sovrapponibili se hanno esattamente gli
+stessi archi entranti ed esattamente gli stessi archi uscenti (nella figura in basso, i nodi 1 e 2 sono
+sovrapponibili perché entrambi hanno un solo arco uscente, verso 3 e un solo arco entrante, che
+arriva da 0). Scrivere una funzione che, dato un Grafo g, (implementato tramite la classe Grafo
+vista a lezione), restituisca tutte le coppie di nodi tra di loro sovrapponibilii
+
+
+
+
+#include <queue>
+
+vector<pair<int, int>> nodi_sovrapponibili(const Grafo& g) {
+    int n = g.n();
+    vector<pair<int, int>> ris;
+    vector<bool> visited(n, false);
+
+    // Eseguiamo la BFS a partire da ogni nodo non ancora visitato
+    for (int i = 0; i < n; ++i) {
+        if (!visited[i]) {
+            queue<int> q;
+            visited[i] = true;
+            q.push(i);
+
+            while (!q.empty()) {
+                int u = q.front();
+                q.pop();
+
+                // Confrontiamo il nodo u con tutti i nodi successivi v > u
+                for (int v = u + 1; v < n; ++v) {
+                    bool sovrapponibili = true;
+                    for (int k = 0; k < n; ++k) {
+                        if (g(u, k) != g(v, k) || g(k, u) != g(k, v)) {
+                            sovrapponibili = false;
+                            break;
+                        }
+                    }
+                    if (sovrapponibili) {
+                        ris.push_back({u, v});
+                    }
+                }
+
+                // BFS classica: visita dei vicini
+                for (int v = 0; v < n; ++v) {
+                    if (g(u, v) && !visited[v]) {
+                        visited[v] = true;
+                        q.push(v);
+                    }
+                }
+            }
+        }
+    }
+
+    return ris;
+}

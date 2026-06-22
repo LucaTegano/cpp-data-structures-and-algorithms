@@ -1,0 +1,31 @@
+class Base
+{
+public:
+   int i1;
+   Base(int x=0, int y=0, int z=0):i1(x),i2(y),i3(z){}
+   void print(){cout<<i1<<endl<<i2<<endl<<i3<<endl;}
+protected:
+   int i2;
+private:
+   int i3;
+};
+
+class Derivata: public Base
+{
+public:
+   Derivata(int x=0,int y=0, int z=0,int d=0):Base(x,y,z),i4(d) {}
+   void print(){Base::print(); cout<<i4<<endl;}
+   int i4;
+};
+
+int main()
+{
+Base a(1,2,3);
+a.print();  
+
+Derivata aa(1,2,3,4);
+aa.print(); 
+aa.Base::print(); 
+return 0;
+}
+

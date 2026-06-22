@@ -1,0 +1,141 @@
+//3
+//considerando grado uscente di ogni nodo i g(i,j) < 
+g.n() che hanno ogni nodo j g(?,j)...g(?,j) <=1
+//g.(i,j) tot pari FATTO
+//g non ha autoarchi g(i,i) NO
+bool f(const Grafo &g){
+    if(g.m() % 2 != 0)
+        return false;
+    int n = g.n();
+    // 2. Verifica condizione O(n): assenza di autoarchi
+    // Verifichiamo prima dei cicli annidati per poter uscire subito se troviamo un autoarco.
+    for (int i = 0; i < n; i++) {
+        if (g(i, i)) {
+            return false;
+        }
+    }
+
+    //3.
+    vector<int> out (n,0);
+    vector<int> in (n,0);
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            if(g(i,j)){
+                out[i]++;
+                in[j]++;
+            }
+        }
+    }
+    int n_in;
+    for(int i = 0; i<n;i++){
+        if(in[i] <= 1){
+            n_in++;
+        }
+    }
+
+    for(int i = 0; i < n; i++){
+            if(out[i] >= n_in)
+                return false;
+    }
+    
+    return true;
+}
+
+//4
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+// Struttura per rappresentare una cella della scacchiera
+struct Cell {
+    int x, y;
+    vector<pair<int, int>> path; // Memorizza il percorso fatto per arrivare qui
+
+    bool operator==(const Cell& other) const {
+        return x == other.x && y == other.y;
+    }
+};
+
+const int BOARD_SIZE = 8;
+
+// Possibili mosse a "L" del cavallo
+int dx[] = {-2, -2, -1, -1, 1, 1, 2, 2};
+int dy[] = {-1, 1, -2, 2, -2, 2, -1, 1};
+
+// Funzione per verificare se una mossa è valida (dentro i bordi e non proibita)
+bool isValid(int x, int y, const set<pair<int, int>>& prohibited, const bool visited[BOARD_SIZE][BOARD_SIZE]) {
+    return (x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE && 
+            prohibited.find({x, y}) == prohibited.end() && !visited[x][y]);
+}
+
+void solveKnightPath(pair<int, int> start, pair<int, int> target, const vector<pair<int, int>>& prohibitedVec) {
+    set<pair<int, int>> prohibited(prohibitedVec.begin(), prohibitedVec.end());
+    
+    // Matrice per tenere traccia dei nodi visitati
+    bool visited[BOARD_SIZE][BOARD_SIZE] = {false};
+    
+    // Coda per la BFS
+    queue<Cell> q;
+
+    // Controllo se partenza o destinazione sono proibite
+    if (prohibited.count(start) || prohibited.count(target)) {
+        cout << "IMPOSSIBILE" << endl;
+        return;
+    }
+
+    // EARLY EXIT: Controllo se siamo già a destinazione in partenza
+    if (start == target) {
+        cout << "(" << start.first << "," << start.second << ")" << endl;
+        return;
+    }
+
+    // Inizializzazione BFS
+    q.push({start.first, start.second, {start}});
+    visited[start.first][start.second] = true;
+
+    while (!q.empty()) {
+        Cell current = q.front();
+        q.pop();
+
+        // Esplora tutte le 8 mosse possibili
+        for (int i = 0; i < 8; ++i) {
+            int nx = current.x + dx[i];
+            int ny = current.y + dy[i];
+
+            if (isValid(nx, ny, prohibited, visited)) {
+                vector<pair<int, int>> newPath = current.path;
+                newPath.push_back({nx, ny});
+
+                // EARLY EXIT: Controllo immediato se la nuova cella è il target
+                if (nx == target.first && ny == target.second) {
+                    for (size_t j = 0; j < newPath.size(); ++j) {
+                        cout << "(" << newPath[j].first << "," << newPath[j].second << ")" 
+                             << (j == newPath.size() - 1 ? "" : " -> ");
+                    }
+                    cout << endl;
+                    return;
+                }
+
+                visited[nx][ny] = true;
+                q.push({nx, ny, newPath});
+            }
+        }
+    }
+
+    cout << "IMPOSSIBILE" << endl;
+}
+
+int main() {
+    pair<int, int> start = {4, 3};
+    pair<int, int> target = {2, 2};
+    vector<pair<int, int>> prohibited = {{3, 3}, {4, 4}};
+
+    cout << "Ricerca cammino da (4,3) a (2,2):" << endl;
+    solveKnightPath(start, target, prohibited);
+
+    return 0;
+}

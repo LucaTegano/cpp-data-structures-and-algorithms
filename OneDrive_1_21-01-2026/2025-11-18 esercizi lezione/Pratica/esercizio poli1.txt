@@ -1,0 +1,46 @@
+class X
+{
+public:
+   void f(){cout<<"X::f";}
+};
+class Y:public X
+{
+public:
+   void f(){cout<<"Y::f";}
+};
+
+int main()
+{
+   Y y;
+   y.f(); 
+   X x;
+   X *p=&x;
+   p->f(); 
+   X *p=&y;
+   p->f();
+}
+
+===================================
+class X
+{
+public:
+  virtual void f(){cout<<"X::f";}
+};
+class Y:public X
+{
+public:
+   void f(){cout<<"Y::f";}
+};
+
+int main()
+{
+   Y y;
+   y.f(); 
+   X x;
+   X *p=&x;
+   p->f(); 
+   p=&y;
+   p->f(); 
+   X& a=y;
+   a.f();
+}

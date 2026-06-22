@@ -1,0 +1,138 @@
+//3
+//Dato un Grafo orientato g, un nodo di partenza s, un nodo di destinazione t e un arco (i,j) del
+grafo, scrivere una funzione
+bool f(const Grafo&g, unsigned s, unsigned t, pair<unsigned,unsigned> edge) {
+...
+}
+che restituisca true se e solo se, dopo aver invertito l’orientamento dell’arco (i,j), il cammino
+minimo da s a t diventa più breve
+
+
+void dfs_h(const Grafo& g,unsigned curr, unsigned t, int  d_curr,int &d_min,vector<bool>& visitato){
+
+    if(curr == t){
+        if(d_curr < d_min){
+            d_min = d_curr;
+        }
+    }
+
+    if(d_curr >= d_min)
+        return;
+
+    visitato[curr] = true;
+    for(int i = 0; i < g.n();i++){
+        if(g(curr,i) && !visitato[i]){
+            dfs_h(g,i,t,d_curr+1,d_min,visitato);
+        }
+    }
+
+
+
+    visitato[curr] = false;
+}
+
+
+bool f(const Grafo&g,unsigned s,unsigned t, pair<unsigned,unsigned> edge){
+   int n = g.n();
+    if (s >= n || t >= n)
+        return false;
+    // 1. Calcola la distanza minima originale
+    int d_minima_original = 1e9;
+    vector<bool> visitato(n, false);
+    dfs_h(g, s, t, 0, d_minima_original, visitato);
+    // 2. Modifica il grafo (inversione arco)
+    unsigned i = edge.first;
+    unsigned j = edge.second;
+    Grafo g2 = g;
+    g2(i, j, false); // Rimuovi i -> j
+    g2(j, i, true);  // Aggiungi j -> i
+    // 3. Calcola la nuova distanza minima
+    int d_minima_2 = 1e9;
+    fill(visitato.begin(), visitato.end(), false); // Resetta il vettore visitato
+    dfs_h(g2, s, t, 0, d_minima_2, visitato);
+    // Ritorna true se il nuovo cammino è strettamente più breve
+    return d_minima_2 < d_minima_original;
+}
+
+//Una matrice n*n, rappresentata tramite vector<vector<int>> pf,
+- Se pf[i][j] = -1, nella cella (i,j) bomba
+- Se pf[i][j] = x, con 0 <= x <= 8, avremo che x celle adiacenti a (i,j) contengono
+una bomba
+- Se pf[i][j] = 9, avremo che la cella (i,j) è vuota
+Nel caso in cui tutte le celle di pf siano diverse da 9, diciamo che la matrice è totalmente
+nota, e, al contrario, diciamo che la matrice è parzialmente nota.
+Si richiede di scrivere un programma che, presa in input un’istanza di Minesweeper parzialmente
+nota e un numero intero positivo k, restituisca true se e solo se è possibile
+creare un’istanza totalmente nota di Minesweeper tale che:
+- Contenga esattamente k bombe.
+- Ogni cella deve essere logicamente giusta,se c'è scritto 3 ci devono essere 3 bombe adiacenti
+- Non si possono cambiare le celle note
+In caso contrario, il programma deve restituire false.
+k = 6
+X  X  X  0  9 
+9  4  0  0  1
+9  0  0  0  9
+0  0  0  9  0
+0  0  0  1  0
+
+#include <vector>
+using namespace std;
+typedef vector<vector<int>> Matrix;
+
+bool isValid(int r, int c, int n, const Matrix& pf) {
+    for (int i = r-1; i <= r+1; ++i)
+        for (int j = c-1; j <= c+1; ++j)
+            if (i>=0 && i<n && j>=0 && j<n && pf[i][j]>=0 && pf[i][j]<=8) {
+                int bombs=0, indet=0;
+                for (int ni=i-1; ni<=i+1; ++ni)
+                    for (int nj=j-1; nj<=j+1; ++nj)
+                        if (ni>=0 && ni<n && nj>=0 && nj<n) {
+                            if (pf[ni][nj]==-1) bombs++;
+                            if (pf[ni][nj]==9)  indet++;
+                        }
+                if (bombs > pf[i][j] || bombs+indet < pf[i][j]) return false;
+            }
+    return true;
+}
+
+bool solve(int index, int current_k, int n, Matrix& pf) {
+    if (index == n*n) return current_k == 0;
+
+    // ── PRUNING ──────────────────────────────────────────────────
+    int cellsLeft = n*n - index;
+    if (current_k > cellsLeft) return false; // impossibile piazzare k bombe
+    // ─────────────────────────────────────────────────────────────
+
+    int r = index/n, c = index%n;
+
+    if (pf[r][c] != 9) {
+        int next_k = (pf[r][c]==-1) ? current_k-1 : current_k;
+        if (next_k < 0) return false;
+        return solve(index+1, next_k, n, pf);
+    }
+
+    // Prova bomba
+    if (current_k > 0) {
+        pf[r][c] = -1;
+        if (isValid(r, c, n, pf) && solve(index+1, current_k-1, n, pf)) return true;
+    }
+
+    // Prova numero 0-8
+    for (int val=0; val<=8; ++val) {
+        pf[r][c] = val;
+        if (isValid(r, c, n, pf) && solve(index+1, current_k, n, pf)) return true;
+    }
+
+    pf[r][c] = 9;
+    return false;
+}
+
+bool canCompleteMinesweeper(Matrix pf, int k) {
+    int n = pf.size();
+    int initial_bombs = 0;
+    for (int i=0; i<n; ++i)
+        for (int j=0; j<n; ++j)
+            if (pf[i][j]==-1) initial_bombs++;
+    if (initial_bombs > k) return false;
+    return solve(0, k-initial_bombs, n, pf);
+}

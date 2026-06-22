@@ -47,7 +47,6 @@ ese3
 ese4
 esepuntatori1
 figGeo
-h
 main
 poli
 primo
@@ -56,9 +55,18 @@ stl
 torrehanoi
 vector
 
-# Editor directories
+# Allow directories to be searched for source files
+!*/
+
+# editor directories
 .vscode/
 .idea/
 
 # OS generated files
 .DS_Store
+
+# Unignore source files
+!*.h
+!*.cpp
+!*.hpp
+!*.c

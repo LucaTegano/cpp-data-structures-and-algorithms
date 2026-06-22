@@ -1,0 +1,63 @@
+#include<queue>
+#incldue<vector>
+using namespace std;
+struct Cell {
+    int x,y;
+
+    vector<pair<int,int>> path;
+
+    operator==(const Cell &other){
+        return x == other.x && y == other.y;
+    }
+}
+const BOARD_SIZE = 8;
+
+int dx[] = {-2, -2, -1,-1 , 1, 1,2, 2}
+int dy[] = { -1, 1, -2, 2, -2, 2, -1 ,1}
+
+bool isValid(int x,int y,const bool visited[BOARD_SIZE][BOARD_SIZE]){
+    return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE && !visited[x][y]
+}
+
+void ese4(pair<int,int> s, pair<int,int>t,vector<pair<int,int> &prohibited){
+    bool visited[BOARD_SIZE][BOARD_SIZE] = false;
+
+    for(const auto &p: prohibited){
+        visited[p.first][p.second] = true;
+    }
+
+    if(start == target) {
+        cout<< "(" << start.first << "," << start.second << ")" << endl;
+    }
+
+    queue<Cell> q;
+    q.push({start.first,start.second,{start}})
+    visited[start.first][start.second] = true;
+
+    while(!q.empty()){
+        Cell current = q.front();
+        q.pop();
+        for(int i = 0; i < 8;i++){
+            int nx = current.x + dx[i];
+            int ny = current.y + dy[i];
+        
+            if(isValid(nx,ny,visited)){
+                vector<pair<int,int> newPath = current.path;
+                newPath.push_back({nx,ny});
+
+                if(nx == target.first && ny == target.second){
+                    for(size_t j = 0; j < newPath.size(); j++){
+                        cout<< "(" << newPath[j].first<< "," << newPath[j].second << ")"<<
+                        (j == newPath.size()-1  ? "" : "->");
+                    }
+                    cout<<endl;
+                    return;
+                }
+            }
+            visited[nx][ny] = true;
+            q.push({nx,ny,newPath});
+        }
+    }
+
+
+};

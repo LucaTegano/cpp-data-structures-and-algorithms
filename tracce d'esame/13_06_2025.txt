@@ -1,0 +1,91 @@
+//3
+Scrivere una funzione spremi che, ricevuto in input un AlberoB<float> tree, imposti il
+valore di ogni nodo non foglia a 0, spostandolo verso i suoi figli, dividendolo equamente tra sinistra
+e destra. Qualora un nodo non foglia abbia un figlio nullo, la quantità ad esso destinata viene
+“raccolta” in una variabile che deve essere restituita in output. I nodi foglia conserveranno quindi la
+somma delle quantità che arrivano dai suoi antenati.
+Esempio: l’input raffigurato nell’immagine
+a sinistra modifica l’albero come nell’immagine
+a destra e produce come output “Totale Acc”
+(che in questo caso equivale a 5.75).
+Le quantità trasferite sono raffigurate sugli
+archi nell’immagine a destra. Si noti che ogni
+nodo trasferisce il suo valore + il valore ricevuto
+dal suo genitore
+
+La classe AlberoB<T> mette a disposizione la seguente interfaccia pubblica (tree istanza di AlberoB<T>):
+- tree.radice() restituisce il valore informativo di tree (di tipo T)
+- tree.figlio(DIR) restituisce il sottoalbero sinistro (DIR=SIN) e destro (DIR=DES) di tree
+- tree.nullo() restituisce true se tree è un albero nullo e false altrimenti
+- tree.foglia() restituisce true se tree è una foglia e false altrimenti
+- tree.modRadice(const T& a) per modificare il valore informativo di tree in a
+
+//DFS
+float spremi(AlberoB<float> &bt){
+    if (tree.nullo()) {
+        return 0.0f;
+    }
+    float currVal = bt.radice();
+    float daDare = curr_val /2.0f;
+    float resto = 0.0f;
+
+    if(!bt.figlio(SIN).nullo()){
+        float nuovoVal = bt.figlio(SIN).radice() + daDistribuire;
+        bt.figlio(SIN).modRadice(nuovoVal);
+        resto += spremi(tree.figlio(SIN));
+    }else{
+        resto += daDare;
+    }
+
+    if(!bt.figlio(DES).nullo()){
+        float nuovoVal = bt.figlio(DES).radice() + daDistribuire;
+        bt.figlio(DES).modRadice(nuovoVal);
+        resto += spremi(tree.figlio(SIN));
+    }else{
+        resto += daDare;
+    }
+
+    bt.modRadice(0.0f);
+    return resto;
+}
+
+//BFS
+float spremi(AlberoB<float> &bt) {
+    if (bt.nullo()) return 0.0f;
+
+    float resto = 0.0f;
+    queue<AlberoB<float>> q;
+    q.push(bt);
+
+    while (!q.empty()) {
+        AlberoB<float> curr = q.front();
+        q.pop();
+
+        if (curr.foglia()) continue;
+
+        float daDistribuire = curr.radice() / 2.0f;
+
+        // Gestione Sinistra
+        if (!curr.figlio(SIN).nullo()) {
+            float nuovoValore = curr.figlio(SIN).radice() + daDistribuire;
+            curr.figlio(SIN).modRadice(nuovoValore);
+            q.push(curr.figlio(SIN));
+        } else {
+            resto += daDistribuire;
+        }
+
+        // Gestione Destra
+        if (!curr.figlio(DES).nullo()) {
+            float nuovoValore = curr.figlio(DES).radice() + daDistribuire;
+            curr.figlio(DES).modRadice(nuovoValore);
+            q.push(curr.figlio(DES));
+        } else {
+            resto += daDistribuire;
+        }
+
+        // Il nodo corrente è stato "spremuto"
+        curr.modRadice(0.0f);
+    }
+
+    return resto;
+}

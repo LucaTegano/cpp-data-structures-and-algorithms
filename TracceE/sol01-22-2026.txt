@@ -1,0 +1,269 @@
+esercizio 1
+262264
+
+
+1 Errore out of range
+
+2 stampa 2
+
+3 stampa Yes perchè gli indirizzzi sono gli stessi
+3.1 Yes sono sempre indirizzzi
+
+4 delete[] matricola;
+delete[] tmp;
+
+
+
+ese2
+#include <string>
+#include <unordered_map>
+#include <vector>
+using namespace std;
+
+class CalendarioRicevimenti {
+private:
+    // Mappa che associa un giorno (string) a una sottomappa di ora (int) -> studente (string)
+    unordered_map<string, unordered_map<int, string>> appuntamenti;
+
+    // Metodo privato per controllare se il docente è libero in un giorno/ora
+    bool isLibero(const string& giorno, int ora) const {
+        auto it_giorno = appuntamenti.find(giorno);
+        if (it_giorno == appuntamenti.end()) {
+            return true;
+        }
+        return it_giorno->second.find(ora) == it_giorno->second.end();
+    }
+
+public:
+    // Costruttore di default
+    CalendarioRicevimenti() = default;
+
+    // Richiedere un ricevimento (firma rivista per efficacia e const-correctness)
+    bool chiediRicevimento(const string& studente, const string& giorno, int ora) {
+        if (!isLibero(giorno, ora)) {
+            return false;
+        }
+        appuntamenti[giorno][ora] = studente;
+        return true;
+    }
+
+    // Cancellare tutti i ricevimenti del docente in un determinato giorno
+    void libera(const string& giorno) {
+        appuntamenti.erase(giorno);
+    }
+
+    // Ridefinizione dell'operator== per confrontare due CalendarioRicevimenti.
+    // Due calendari sono uguali se e solo se coincidono esattamente gli slot occupati.
+    bool operator==(const CalendarioRicevimenti& altro) const {
+        auto it1 = appuntamenti.begin();
+        auto it2 = altro.appuntamenti.begin();
+        
+        while (true) {
+            // Saltiamo i giorni eventualmente rimasti vuoti (pur non creandoli nella nostra implementazione)
+            while (it1 != appuntamenti.end() && it1->second.empty()) {
+                it1++;
+            }
+            while (it2 != altro.appuntamenti.end() && it2->second.empty()) {
+                it2++;
+            }
+            
+            if (it1 == appuntamenti.end() && it2 == altro.appuntamenti.end()) {
+                return true;
+            }
+            if (it1 == appuntamenti.end() || it2 == altro.appuntamenti.end()) {
+                return false;
+            }
+            
+            // Confrontiamo le chiavi dei giorni
+            if (it1->first != it2->first) {
+                return false;
+            }
+            
+            // Confrontiamo gli slot orari
+            const auto& ore1 = it1->second;
+            const auto& ore2 = it2->second;
+            
+            if (ore1.size() != ore2.size()) {
+                return false;
+            }
+            
+            auto sub_it1 = ore1.begin();
+            auto sub_it2 = ore2.begin();
+            while (sub_it1 != ore1.end()) {
+                if (sub_it1->first != sub_it2->first) {
+                    return false;
+                }
+                sub_it1++;
+                sub_it2++;
+            }
+            
+            it1++;
+            it2++;
+        }
+    }
+
+    // Piccolo Bonus: Ridefinizione dell'operator[] per ottenere gli studenti impegnati in un dato giorno
+    vector<string> operator[](const string& giorno) const {
+        vector<string> studenti_impegnati;
+        auto it = appuntamenti.find(giorno);
+        if (it != appuntamenti.end()) {
+            for (const auto& coppia : it->second) {
+                studenti_impegnati.push_back(coppia.second);
+            }
+        }
+        return studenti_impegnati;
+    }
+};
+
+
+
+
+
+
+ese 3
+
+bool dfs_h(const Grafo &g,int curr, int target,vector<bool>& visited){
+    if(curr == target) return true;
+    visited[curr] = true;
+    for(int next = 0; next < g.n(); next++){
+        if(g(curr,next) && !visited[next]){
+            if(dfs_h(g,next,target,visited)) return true;
+        }
+    }
+       return false;
+}
+
+bool ese3(const Grafo &g, int s ,int t){
+    int n = g.n();
+    vector<bool> visited (n,false);
+    vector<bool> visited2(n,false);
+    if(dfs_h(g,s,t,visited) && dfs_h(g,t,s,visited2)){
+        return true;
+    }
+    return false;
+
+}
+
+
+bool backtrack(const Grafo& g, int node, int current_sum, int k, vector<int>& v) {
+    int n = g.n();
+    if (node == n) {
+        return current_sum == k;
+    }
+    
+    int remaining = n - node;
+    if (current_sum > k) return false;
+    if (current_sum + remaining * (n - 1) < k) return false;
+    
+    for (int val = 0; val < n; ++val) {
+        if (val == node) continue;
+        
+        bool ok = true;
+        for (int neighbor = 0; neighbor < node; ++neighbor) {
+            if (g(node, neighbor) && (val % 3 == v[neighbor] % 3)) {
+                ok = false;
+                break;
+            }
+        }
+        if (!ok) continue;
+        
+        v[node] = val;
+        if (backtrack(g, node + 1, current_sum + val, k, v)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ese4(const Grafo& g, int k) {
+    int n = g.n();
+    vector<int> v(n, 0);
+    if (backtrack(g, 0, 0, k, v)) {
+        for (int i = 0; i < n; ++i) {
+            cout << v[i] << " ";
+        }
+    } else {
+        cout << "IMPOSSIBILE" << endl;
+    }
+}
+
+
+
+
+
+
+
+
+
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+// Hash personalizzato per std::pair (necessario per usare std::unordered_set con pair)
+struct PairHash {
+    size_t operator()(const std::pair<std::string, int>& p) const {
+        return std::hash<std::string>{}(p.first) ^ (std::hash<int>{}(p.second) << 1);
+    }
+};
+
+class CalendarioRicevimenti {
+private:
+    // giorno -> (ora -> studente)
+    std::unordered_map<std::string, std::unordered_map<int, std::string>> impegni;
+
+    // Metodo privato: const correctness applicata ai parametri e al metodo stesso
+    bool isLibero(const std::string& giorno, int ora) const {
+        auto itGiorno = impegni.find(giorno);
+        if (itGiorno == impegni.end()) {
+            return true; 
+        }
+        return itGiorno->second.find(ora) == itGiorno->second.end();
+    }
+
+    // Funzione helper per estrarre solo gli slot occupati (giorno, ora) senza gli studenti
+    std::unordered_set<std::pair<std::string, int>, PairHash> getSlots() const {
+        std::unordered_set<std::pair<std::string, int>, PairHash> slots;
+        for (const auto& [giorno, orari] : impegni) {
+            for (const auto& [ora, studente] : orari) {
+                slots.insert({giorno, ora});
+            }
+        }
+        return slots;
+    }
+
+public:
+    CalendarioRicevimenti() = default;
+
+    // 1) Chiedi ricevimento
+    bool chiediRicevimento(const std::string& studente, const std::string& giorno, int ora) {
+        if (!isLibero(giorno, ora)) {
+            return false;
+        }
+        impegni[giorno][ora] = studente;
+        return true;
+    }
+
+    // 2) Libera un giorno intero
+    void libera(const std::string& giorno) {
+        impegni.erase(giorno);
+    }
+
+    // 4) Ridefinizione operator==
+    bool operator==(const CalendarioRicevimenti& altro) const {
+        return this->getSlots() == altro.getSlots();
+    }
+
+    // BONUS: operator[]
+    std::vector<std::string> operator[](const std::string& giorno) const {
+        std::vector<std::string> studenti;
+        auto itGiorno = impegni.find(giorno);
+        if (itGiorno != impegni.end()) {
+            for (const auto& [ora, studente] : itGiorno->second) {
+                studenti.push_back(studente);
+            }
+        }
+        return studenti;
+    }
+};

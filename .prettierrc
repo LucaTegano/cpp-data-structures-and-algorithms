@@ -1,0 +1,16 @@
+{
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": ["*.py", "*.cpp", "*.h", "*.hpp"],
+      "options": {
+        "tabWidth": 4
+      }
+    }
+  ]
+}

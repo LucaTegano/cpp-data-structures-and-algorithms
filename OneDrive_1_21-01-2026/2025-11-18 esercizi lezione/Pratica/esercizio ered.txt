@@ -1,0 +1,31 @@
+class X
+{
+   public:
+      void f(){cout<<"X::f"<<endl;}
+      int a;
+};
+
+class Y: public X
+{
+   public:
+      void f(){ cout<<"Y::f"<<endl;}
+      int a;
+};
+
+int main()
+{
+X x;
+x.a=20;
+x.f();   
+cout<<x.a<<endl; 
+Y y;
+y.a=40;
+y.X::a=60;
+y.f();  
+y.X::f();  
+cout<<y.a<<endl;   
+cout<<y.X::a<<endl; 
+X z=y;
+cout<<z.a<<endl;  
+return 0;
+}
